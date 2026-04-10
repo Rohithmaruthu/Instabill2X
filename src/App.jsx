@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useAuth } from './context/AuthContext'
-import { supabase } from './lib/supabase'
+import { useAuth } from './hooks/useAuth'
+import { getMyProfile, hasCompletedProfile } from './lib/profiles'
 
 import ProtectedRoute from './components/ProtectedRoute'
 import SignUp from './pages/SignUp'
@@ -13,7 +13,7 @@ import ProfileSetup from './pages/ProfileSetup'
 function RootRedirect() {
   const { user, loading } = useAuth()
   const [checking, setChecking] = useState(true)
-  const [hasName, setHasName] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -22,14 +22,14 @@ function RootRedirect() {
         return
       }
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('name')
-        .eq('id', user.id)
-        .single()
-
-      setHasName(!!data?.name)
-      setChecking(false)
+      try {
+        const profile = await getMyProfile()
+        setIsReady(hasCompletedProfile(profile))
+      } catch {
+        setIsReady(false)
+      } finally {
+        setChecking(false)
+      }
     }
 
     checkProfile()
@@ -44,7 +44,7 @@ function RootRedirect() {
   }
 
   if (!user) return <Navigate to="/signin" replace />
-  if (!hasName) return <Navigate to="/profile-setup" replace />
+  if (!isReady) return <Navigate to="/profile-setup" replace />
   return <Navigate to="/dashboard" replace />
 }
 
