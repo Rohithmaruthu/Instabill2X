@@ -1,0 +1,89 @@
+/* Import Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   COLOR TOKENS (DARK MODE DEFAULT)
+   ========================= */
+
+:root {
+  --bg-base: #0C0A09;
+  --bg-surface: #1C1917;
+  --bg-elevated: #292524;
+
+  --accent: #D97706;
+  --accent-hover: #B45309;
+
+  --text-primary: #FAFAF9;
+  --text-secondary: #A8A29E;
+  --text-tertiary: #57534E;
+
+  --border-default: #292524;
+  --border-strong: #44403C;
+
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+/* =========================
+   BASE STYLES
+   ========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================
+   INPUT RESET
+   ========================= */
+
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+
+/* Remove default input styles */
+input {
+  outline: none;
+  border: none;
+}
+
+/* =========================
+   BUTTON RESET
+   ========================= */
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* =========================
+   SCROLLBAR (optional clean look)
+   ========================= */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
