@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import { getMyProfile } from '../lib/profiles'
+import AuthLayout from '../components/layout/AuthLayout'
+import Button from '../components/ui/Button'
+import { Field } from '../components/ui/Field'
+import LoadingScreen from '../components/LoadingScreen'
 
 export default function ProfileSetup() {
   const navigate = useNavigate()
@@ -48,7 +52,7 @@ export default function ProfileSetup() {
     }
   }, [])
 
-  const handleSubmit = async (event) => {
+  async function handleSubmit(event) {
     event.preventDefault()
 
     const trimmedFullName = fullName.trim()
@@ -93,7 +97,7 @@ export default function ProfileSetup() {
         throw new Error('update')
       }
 
-      navigate('/dashboard')
+      navigate('/app')
     } catch {
       setError('We could not save your profile. Please try again.')
     } finally {
@@ -102,101 +106,61 @@ export default function ProfileSetup() {
   }
 
   if (bootstrapping) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[--bg-base] text-[--text-primary]">
-        Loading...
-      </div>
-    )
+    return <LoadingScreen message="Loading your profile..." />
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[--bg-base] text-[--text-primary]">
-      <div className="w-full max-w-md border border-[--border-default] p-6 rounded-2xl bg-[--bg-surface]">
-        <p className="text-xs uppercase tracking-widest text-[--text-secondary] mb-2">
-          One-time setup
-        </p>
+    <AuthLayout
+      eyebrow="Profile setup"
+      title="Set up your profile"
+      description="These details will prefill every invoice you create."
+      asideTitle="One solid profile saves repetition on every future invoice."
+      asideCopy="You can refine the business details later, but your name and UPI ID are enough to unlock the first working flow."
+    >
+      <form onSubmit={handleSubmit} className="stack">
+        <div className="grid grid--two">
+          <Field
+            label="Your name"
+            type="text"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+          />
+          <Field
+            label="Business name"
+            type="text"
+            value={businessName}
+            onChange={(event) => setBusinessName(event.target.value)}
+          />
+        </div>
 
-        <h1 className="text-2xl font-semibold mb-2">
-          Set up your profile
-        </h1>
+        <Field
+          label="UPI ID"
+          type="text"
+          value={upiId}
+          onChange={(event) => setUpiId(event.target.value)}
+          hint="Required for the invoice payment flow."
+        />
+        <Field
+          label="GSTIN"
+          type="text"
+          value={gstin}
+          onChange={(event) => setGstin(event.target.value)}
+        />
+        <Field
+          label="Footer text"
+          multiline
+          rows="4"
+          value={footerText}
+          onChange={(event) => setFooterText(event.target.value)}
+          hint="Optional note shown at the bottom of your invoice."
+        />
 
-        <p className="text-sm text-[--text-secondary] mb-6">
-          This fills in every invoice automatically. You will only do this once.
-        </p>
+        {error ? <p className="alert alert--error">{error}</p> : null}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs uppercase tracking-wider text-[--text-secondary]">
-              YOUR NAME
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-              className="w-full mt-1 p-3 bg-[--bg-base] border border-[--border-default] rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs uppercase tracking-wider text-[--text-secondary]">
-              BUSINESS NAME
-            </label>
-            <input
-              type="text"
-              value={businessName}
-              onChange={(event) => setBusinessName(event.target.value)}
-              className="w-full mt-1 p-3 bg-[--bg-base] border border-[--border-default] rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs uppercase tracking-wider text-[--text-secondary]">
-              YOUR UPI ID
-            </label>
-            <input
-              type="text"
-              value={upiId}
-              onChange={(event) => setUpiId(event.target.value)}
-              className="w-full mt-1 p-3 bg-[--bg-base] border border-[--border-default] rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs uppercase tracking-wider text-[--text-secondary]">
-              GSTIN
-            </label>
-            <input
-              type="text"
-              value={gstin}
-              onChange={(event) => setGstin(event.target.value)}
-              className="w-full mt-1 p-3 bg-[--bg-base] border border-[--border-default] rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label className="text-xs uppercase tracking-wider text-[--text-secondary]">
-              FOOTER TEXT
-            </label>
-            <textarea
-              value={footerText}
-              onChange={(event) => setFooterText(event.target.value)}
-              className="w-full mt-1 p-3 min-h-24 bg-[--bg-base] border border-[--border-default] rounded-xl"
-            />
-          </div>
-
-          {error && (
-            <p className="text-sm text-[--danger]">{error}</p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-[--accent] text-[#0C0A09]"
-          >
-            {loading ? 'Saving...' : 'Save and continue'}
-          </button>
-        </form>
-      </div>
-    </div>
+        <Button type="submit" disabled={loading}>
+          {loading ? 'Saving...' : 'Save and continue'}
+        </Button>
+      </form>
+    </AuthLayout>
   )
 }

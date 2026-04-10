@@ -1,20 +1,17 @@
-import { Navigate } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+import LoadingScreen from './LoadingScreen'
 
 export default function ProtectedRoute({ children }) {
-    const { user, loading } = useAuth()
+  const { user, loading } = useAuth()
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                Loading...
-            </div>
-        )
-    }
+  if (loading) {
+    return <LoadingScreen message="Loading your workspace..." />
+  }
 
-    if (!user) {
-        return <Navigate to="/signin" replace />
-    }
+  if (!user) {
+    return <Navigate to="/signin" replace />
+  }
 
-    return children
+  return children
 }

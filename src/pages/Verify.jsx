@@ -1,50 +1,68 @@
 import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useLocation } from 'react-router-dom'
+import AuthLayout from '../components/layout/AuthLayout'
+import Button from '../components/ui/Button'
 
 export default function Verify() {
   const location = useLocation()
   const email = location.state?.email || ''
   const [resent, setResent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleResend() {
     setLoading(true)
-    await supabase.auth.resend({ type: 'signup', email })
-    setLoading(false)
-    setResent(true)
-    setTimeout(() => setResent(false), 4000)
+    setError('')
+
+    try {
+      const { error: resendError } = await supabase.auth.resend({ type: 'signup', email })
+
+      if (resendError) {
+        throw resendError
+      }
+
+      setResent(true)
+      setTimeout(() => setResent(false), 4000)
+    } catch {
+      setError('We could not resend the verification email right now.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-[#0C0A09] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm text-center">
-        <div className="w-12 h-12 rounded-full bg-[#1C1917] border border-[#292524] border-[0.5px] flex items-center justify-center mx-auto mb-6">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M2.5 6.5L10 11.5L17.5 6.5" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" />
-            <rect x="2.5" y="4.5" width="15" height="11" rx="1.5" stroke="#D97706" strokeWidth="1.5" />
+    <AuthLayout
+      eyebrow="Verify email"
+      title="Check your inbox"
+      description="Open the verification link to activate your account."
+      asideTitle="Your profile unlocks the rest of the invoice flow."
+      asideCopy="Once you verify your email, we can take you into profile setup and prepare the workspace for invoice creation."
+      footer={
+        <p className="support-copy">
+          Need to sign in instead? <Link className="text-link" to="/signin">Go to sign in</Link>
+        </p>
+      }
+    >
+      <div className="stack">
+        <div className="verification-badge" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
+            <path d="M2.5 6.5L10 11.5L17.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <rect x="2.5" y="4.5" width="15" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
           </svg>
         </div>
 
-        <h1 className="text-[#FAFAF9] text-2xl font-semibold mb-2">Check your email</h1>
-        <p className="text-[#A8A29E] text-sm leading-relaxed mb-8">
-          We sent a verification link to{' '}
-          <span className="text-[#FAFAF9]">{email}</span>.
-          {' '}Click it to activate your account.
+        <p className="support-copy">
+          We sent a verification link to <strong>{email || 'your email address'}</strong>.
         </p>
 
-        <button
-          onClick={handleResend}
-          disabled={loading}
-          className="text-[#D97706] hover:text-[#B45309] text-sm transition-colors disabled:opacity-50"
-        >
-          {loading ? 'Sending...' : "Didn't get it? Resend"}
-        </button>
+        {error ? <p className="alert alert--error">{error}</p> : null}
+        {resent ? <p className="alert alert--success">Verification email sent.</p> : null}
 
-        {resent && (
-          <p className="text-[#10B981] text-sm mt-3">Verification email sent</p>
-        )}
+        <Button variant="secondary" onClick={handleResend} disabled={loading || !email}>
+          {loading ? 'Sending...' : "Didn't get it? Resend"}
+        </Button>
       </div>
-    </div>
+    </AuthLayout>
   )
 }

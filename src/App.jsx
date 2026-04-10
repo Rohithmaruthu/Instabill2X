@@ -4,6 +4,9 @@ import { useAuth } from './hooks/useAuth'
 import { getMyProfile, hasCompletedProfile } from './lib/profiles'
 
 import ProtectedRoute from './components/ProtectedRoute'
+import PublicOnlyRoute from './components/PublicOnlyRoute'
+import LoadingScreen from './components/LoadingScreen'
+import Landing from './pages/Landing'
 import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
 import Verify from './pages/Verify'
@@ -36,26 +39,50 @@ function RootRedirect() {
   }, [user])
 
   if (loading || checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    )
+    return <LoadingScreen message="Preparing your workspace..." />
   }
 
-  if (!user) return <Navigate to="/signin" replace />
+  if (!user) return <Navigate to="/" replace />
   if (!isReady) return <Navigate to="/profile-setup" replace />
-  return <Navigate to="/dashboard" replace />
+  return <Navigate to="/app" replace />
 }
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<RootRedirect />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/verify" element={<Verify />} />
-
+      <Route
+        path="/"
+        element={
+          <PublicOnlyRoute>
+            <Landing />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route path="/go" element={<RootRedirect />} />
+      <Route
+        path="/signup"
+        element={
+          <PublicOnlyRoute>
+            <SignUp />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/signin"
+        element={
+          <PublicOnlyRoute>
+            <SignIn />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/verify"
+        element={
+          <PublicOnlyRoute>
+            <Verify />
+          </PublicOnlyRoute>
+        }
+      />
       <Route
         path="/profile-setup"
         element={
@@ -64,17 +91,15 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-
       <Route
-        path="/dashboard"
+        path="/app"
         element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
         }
       />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/go" replace />} />
     </Routes>
   )
 }
