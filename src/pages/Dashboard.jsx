@@ -86,7 +86,7 @@ export default function Dashboard() {
             form, line items, GST totals, and preview flow.
           </p>
           <div className="empty-state__actions">
-            <Button disabled>Create invoice</Button>
+            <Button onClick={() => navigate('/app/new')}>Create invoice</Button>
             <Button variant="secondary" disabled>Settings</Button>
           </div>
         </div>

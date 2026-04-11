@@ -12,6 +12,11 @@ import SignIn from './pages/SignIn'
 import Verify from './pages/Verify'
 import Dashboard from './pages/Dashboard'
 import ProfileSetup from './pages/ProfileSetup'
+import InvoiceComposer from './pages/InvoiceComposer'
+import InvoicePreview from './pages/InvoicePreview'
+import ShareScreen from './pages/ShareScreen'
+import Paywall from './pages/Paywall'
+import SharedInvoicePage from './pages/SharedInvoicePage'
 
 function RootRedirect() {
   const { user, loading } = useAuth()
@@ -44,7 +49,7 @@ function RootRedirect() {
 
   if (!user) return <Navigate to="/" replace />
   if (!isReady) return <Navigate to="/profile-setup" replace />
-  return <Navigate to="/app" replace />
+  return <Navigate to="/app/new" replace />
 }
 
 export default function App() {
@@ -95,10 +100,51 @@ export default function App() {
         path="/app"
         element={
           <ProtectedRoute>
+            <Navigate to="/app/new" replace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/app/new"
+        element={
+          <ProtectedRoute>
+            <InvoiceComposer />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/preview"
+        element={
+          <ProtectedRoute>
+            <InvoicePreview />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/share"
+        element={
+          <ProtectedRoute>
+            <ShareScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/paywall"
+        element={
+          <ProtectedRoute>
+            <Paywall />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/inv/:token" element={<SharedInvoicePage />} />
       <Route path="*" element={<Navigate to="/go" replace />} />
     </Routes>
   )
