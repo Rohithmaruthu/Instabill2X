@@ -93,6 +93,15 @@ export default function ShareScreen() {
     }
   }
 
+  function handlePrint() {
+    if (savedInvoice?.share_url) {
+      window.open(savedInvoice.share_url, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    window.print()
+  }
+
   return (
     <AppLayout
       title="Share invoice"
@@ -137,6 +146,9 @@ export default function ShareScreen() {
           </Button>
           <Button variant="secondary" onClick={handleCopyLink} disabled={!savedInvoice?.share_url}>
             Copy link
+          </Button>
+          <Button variant="secondary" onClick={handlePrint}>
+            Open printable invoice
           </Button>
           <Button variant="secondary" onClick={() => navigate('/app/new')}>
             Create another invoice

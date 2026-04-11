@@ -829,6 +829,38 @@ textarea.field__input {
   gap: 12px;
 }
 
+.recent-invoices {
+  display: grid;
+  gap: 14px;
+}
+
+.recent-invoices__list {
+  display: grid;
+  gap: 12px;
+}
+
+.recent-invoice {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  border: 0.5px solid var(--border-default);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.recent-invoice div,
+.recent-invoice__meta {
+  display: grid;
+  gap: 4px;
+}
+
+.recent-invoice span {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
 .share-actions__primary {
   min-height: 56px;
 }
@@ -935,6 +967,31 @@ textarea.field__input {
 .shared-breakdown {
   display: grid;
   gap: 10px;
+}
+
+.shared-line-items {
+  display: grid;
+  gap: 10px;
+}
+
+.shared-line-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  border: 0.5px solid #ece5dd;
+  background: #fcfbf9;
+}
+
+.shared-line-item div {
+  display: grid;
+  gap: 6px;
+}
+
+.shared-line-item span {
+  color: #6b6157;
 }
 
 .shared-breakdown div {

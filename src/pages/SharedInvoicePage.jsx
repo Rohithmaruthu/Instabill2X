@@ -93,6 +93,20 @@ export default function SharedInvoicePage() {
             <strong>{formatIndianCurrency(invoice.total_amount)}</strong>
           </div>
 
+          {invoice.line_items?.length ? (
+            <div className="shared-line-items">
+              {invoice.line_items.map((item) => (
+                <div className="shared-line-item" key={item.id}>
+                  <div>
+                    <strong>{item.description}</strong>
+                    <span>{item.quantity} x {formatIndianCurrency(item.rate)}</span>
+                  </div>
+                  <strong>{formatIndianCurrency(item.amount)}</strong>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
           <div className="shared-breakdown">
             <div><span>Subtotal</span><strong>{formatIndianCurrency(invoice.subtotal)}</strong></div>
             {invoice.gst_rate > 0 ? (

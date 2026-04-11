@@ -8,6 +8,7 @@ import { Field } from '../components/ui/Field'
 import LoadingScreen from '../components/LoadingScreen'
 import { formatIndianCurrency, getTodayInputValue } from '../lib/format'
 import { getMyProfile } from '../lib/profiles'
+import { listRecentInvoices } from '../lib/invoices'
 
 const GST_OPTIONS = [0, 5, 12, 18]
 
@@ -35,6 +36,7 @@ export default function InvoiceComposer() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [invoiceCounter, setInvoiceCounter] = useState(0)
+  const [recentInvoices, setRecentInvoices] = useState([])
   const [freelancerName, setFreelancerName] = useState('')
   const [clientName, setClientName] = useState('')
   const [clientEmail, setClientEmail] = useState('')
@@ -69,6 +71,13 @@ export default function InvoiceComposer() {
           )
           setUpiId(profile.upi_id || '')
         }
+
+        if (user?.id) {
+          const recent = await listRecentInvoices(user.id)
+          if (alive) {
+            setRecentInvoices(recent)
+          }
+        }
       } catch {
         if (alive) {
           setError('We could not preload your saved profile details.')
@@ -82,7 +91,7 @@ export default function InvoiceComposer() {
     return () => {
       alive = false
     }
-  }, [location.state])
+  }, [location.state, user?.id])
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + toNumber(item.quantity) * toNumber(item.rate), 0),
@@ -326,6 +335,29 @@ export default function InvoiceComposer() {
             <Button onClick={handlePreview} disabled={loading}>
               {loading ? 'Preparing preview...' : 'Preview invoice'}
             </Button>
+
+            {recentInvoices.length ? (
+              <div className="recent-invoices">
+                <div>
+                  <p className="eyebrow">Recent invoices</p>
+                  <h3 className="section-title">Sent recently</h3>
+                </div>
+                <div className="recent-invoices__list">
+                  {recentInvoices.map((invoice) => (
+                    <div className="recent-invoice" key={invoice.id}>
+                      <div>
+                        <strong>{invoice.client_name}</strong>
+                        <span>{invoice.invoice_number}</span>
+                      </div>
+                      <div className="recent-invoice__meta">
+                        <strong className="money-copy">{formatIndianCurrency(invoice.total_amount)}</strong>
+                        <span>{invoice.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </aside>
         </div>
       </section>

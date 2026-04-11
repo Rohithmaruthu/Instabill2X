@@ -91,30 +91,9 @@ export async function createInvoiceFromDraft({ userId, draft }) {
 }
 
 export async function getSharedInvoice(shareToken) {
-  const { data, error } = await supabase
-    .from('invoices')
-    .select(`
-      id,
-      invoice_number,
-      issue_date,
-      due_date,
-      gst_rate,
-      subtotal,
-      gst_amount,
-      total_amount,
-      freelancer_name,
-      freelancer_upi_id,
-      freelancer_gstin,
-      client_name,
-      share_token,
-      share_url,
-      open_count,
-      first_opened_at,
-      last_opened_at,
-      status
-    `)
-    .eq('share_token', shareToken)
-    .single()
+  const { data, error } = await supabase.rpc('get_public_invoice', {
+    p_share_token: shareToken,
+  })
 
   if (error || !data) {
     throw new Error('Invoice not found')
@@ -124,25 +103,31 @@ export async function getSharedInvoice(shareToken) {
 }
 
 export async function markInvoiceOpened(invoice) {
-  const nextOpenCount = (invoice.open_count ?? 0) + 1
-  const now = new Date().toISOString()
+  await supabase.rpc('record_invoice_open', {
+    p_share_token: invoice.share_token,
+  })
+}
 
-  await Promise.allSettled([
-    supabase
-      .from('invoices')
-      .update({
-        open_count: nextOpenCount,
-        first_opened_at: invoice.first_opened_at ?? now,
-        last_opened_at: now,
-      })
-      .eq('id', invoice.id),
-    supabase.from('invoice_events').insert({
-      invoice_id: invoice.id,
-      user_id: null,
-      event_type: 'client_opened',
-      event_meta: {
-        opened_at: now,
-      },
-    }),
-  ])
+export async function listRecentInvoices(userId) {
+  const { data, error } = await supabase
+    .from('invoices')
+    .select(`
+      id,
+      invoice_number,
+      client_name,
+      due_date,
+      total_amount,
+      status,
+      share_url,
+      created_at
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(6)
+
+  if (error) {
+    throw new Error('We could not load your recent invoices.')
+  }
+
+  return data ?? []
 }
